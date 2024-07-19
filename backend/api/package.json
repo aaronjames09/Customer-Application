@@ -1,0 +1,24 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node api.js",
+    "swagger": "node ./swagger.js"
+  },
+  "keywords": [],
+  "author": "Aaron James",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "prettier": "3.3.3",
+    "swagger-autogen": "^2.23.7"
+  }
+}
