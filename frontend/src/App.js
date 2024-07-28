@@ -1,26 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
-import { FilteringTable } from './components/FilteringTable';
-import { SortingTable } from './components/SortingTable';
-import { PaginationTable } from './components/PaginationTable';
+import React from 'react';
+import './assets/App.css';
+import CustomerTable from './components/CustomerTable';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <PaginationTable />
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Customer Table</h1>
+        <ErrorBoundary>
+          <CustomerTable />
+        </ErrorBoundary>
       </header>
     </div>
   );

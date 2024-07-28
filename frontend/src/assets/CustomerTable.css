@@ -1,0 +1,24 @@
+/* src/CustomerTable.css */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+  }
+  
+  th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+  }
+  
+  th {
+    cursor: pointer;
+  }
+  
+  input {
+    margin: 20px 0;
+    padding: 8px;
+    font-size: 16px;
+  }
+  
