@@ -49,12 +49,66 @@ client.connect();
 //     }
 // });
 
+// app.get('/customers', async (req, res) => {
+//     try {
+//         const { page = 1, limit = 10, search, sortField, sortOrder } = req.query;
+//         const offset = (page - 1) * limit;
+
+//         let query = `SELECT *, to_char(created_at, 'YYYY-MM-DD') AS date, to_char(created_at, 'HH24:MI:SS') AS time FROM customer_data_tbl`;
+//         let countQuery = `SELECT COUNT(*) FROM customer_data_tbl`;
+//         let values = [];
+//         let counter = 1;
+
+//         if (search) {
+//             query += ` WHERE customer_name ILIKE $${counter} OR customer_location ILIKE $${counter}`;
+//             countQuery += ` WHERE customer_name ILIKE $${counter} OR customer_location ILIKE $${counter}`;
+//             values.push(`%${search}%`);
+//             counter++;
+//         }
+
+//         if (sortField) {
+//             query += ` ORDER BY ${sortField} ${sortOrder}`;
+//         }
+
+//         query += ` LIMIT $${counter} OFFSET $${counter + 1}`;
+//         values.push(limit, offset);
+
+//         // Fetch data
+//         const dataResult = await client.query(query, values);
+
+//         // Fetch total count
+//         const countResult = await client.query(countQuery, values.slice(0, -2)); // Exclude limit and offset from count query
+
+//         res.json({
+//             data: dataResult.rows,
+//             totalRecords: parseInt(countResult.rows[0].count, 10)
+//         });
+//     } catch (err) {
+//         console.error('Error fetching data:', err);
+//         res.status(500).send('Server error');
+//     }
+// });
+
+
 app.get('/customers', async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, sortField, sortOrder } = req.query;
+        const { page = 1, limit = 20, search, sortField = 'sno', sortOrder = 'asc' } = req.query;
         const offset = (page - 1) * limit;
 
-        let query = `SELECT *, to_char(created_at, 'YYYY-MM-DD') AS date, to_char(created_at, 'HH24:MI:SS') AS time FROM customer_data_tbl`;
+        // Whitelist allowed sort fields and orders
+        const validSortFields = ['sno', 'date', 'time']; // Add other fields as needed
+        const validSortOrders = ['asc', 'desc'];
+
+        // Ensure sortField and sortOrder are valid
+        const safeSortField = validSortFields.includes(sortField) ? sortField : 'sno';
+        const safeSortOrder = validSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder : 'asc';
+
+        let query = `
+            SELECT *, 
+                   to_char(created_at, 'YYYY-MM-DD') AS date, 
+                   to_char(created_at, 'HH24:MI:SS') AS time 
+            FROM customer_data_tbl
+        `;
         let countQuery = `SELECT COUNT(*) FROM customer_data_tbl`;
         let values = [];
         let counter = 1;
@@ -66,17 +120,20 @@ app.get('/customers', async (req, res) => {
             counter++;
         }
 
-        if (sortField) {
-            query += ` ORDER BY ${sortField} ${sortOrder}`;
-        }
+        // Apply safe ordering
+        query += ` ORDER BY ${safeSortField} ${safeSortOrder}`;
 
         query += ` LIMIT $${counter} OFFSET $${counter + 1}`;
         values.push(limit, offset);
 
+        // Log the query and values for debugging
+        console.log('SQL Query:', query);
+        console.log('Values:', values);
+
         // Fetch data
         const dataResult = await client.query(query, values);
 
-        // Fetch total count
+        // Fetch total count for pagination
         const countResult = await client.query(countQuery, values.slice(0, -2)); // Exclude limit and offset from count query
 
         res.json({
@@ -88,8 +145,6 @@ app.get('/customers', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
-
 
 app.get('/customer/name/:customer_name', async (req, res) => {
     try {

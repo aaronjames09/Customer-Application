@@ -8,11 +8,11 @@ const CustomerTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pageCount, setPageCount] = useState(0);
-  const [pageSize] = useState(10); // Number of records per page
+  const [pageSize] = useState(20); // Number of records per page
   const [search, setSearch] = useState(''); // Search term
 
   // Fetch data for the current page
-  const fetchData = async (pageIndex, sortBy) => {
+  const fetchData = async (pageIndex, sortBy , search) => {
     try {
       setLoading(true);
       const sortField = sortBy.length ? sortBy[0].id : '';
@@ -22,7 +22,7 @@ const CustomerTable = () => {
         params: {
           page: pageIndex + 1,
           limit: pageSize,
-          search,
+          search : search || '',
           sortField,
           sortOrder
         }
@@ -45,19 +45,19 @@ const CustomerTable = () => {
     }
   };
 
+
   const columns = useMemo(
     () => [
-      { Header: 'Serial No', accessor: 'sno' },
-      { Header: 'Customer Name', accessor: 'customer_name' },
-      { Header: 'Age', accessor: 'age' },
-      { Header: 'Phone', accessor: 'phone' },
-      { Header: 'Customer Location', accessor: 'customer_location' },
-      { Header: 'Date', accessor: 'date' },
-      { Header: 'Time', accessor: 'time' }
+      { Header: 'Serial No', accessor: 'sno', disableSortBy: true },
+      { Header: 'Customer Name', accessor: 'customer_name', disableSortBy: true },
+      { Header: 'Age', accessor: 'age', disableSortBy: true },
+      { Header: 'Phone', accessor: 'phone', disableSortBy: true },
+      { Header: 'Customer Location', accessor: 'customer_location', disableSortBy: true },
+      { Header: 'Date', accessor: 'date' }, // Keep sorting enabled
+      { Header: 'Time', accessor: 'time' }  // Keep sorting enabled
     ],
     []
   );
-
   const {
     getTableProps,
     getTableBodyProps,
@@ -76,9 +76,12 @@ const CustomerTable = () => {
     {
       columns,
       data,
-      manualPagination: true, // Tell the usePagination hook that we'll handle our own pagination
-      manualSortBy: true, // Tell the useSortBy hook that we'll handle our own sorting
-      pageCount
+      manualPagination: true,
+      manualSortBy: true,
+      pageCount,
+      initialState: {
+        sortBy: [] // Ensures no initial sorting
+      }
     },
     useGlobalFilter,
     useSortBy,
@@ -88,7 +91,7 @@ const CustomerTable = () => {
   const { globalFilter, pageIndex, sortBy } = state;
 
   useEffect(() => {
-    fetchData(pageIndex, sortBy); // Fetch data whenever pageIndex, sortBy or search changes
+    fetchData(pageIndex, sortBy , search); // Fetch data whenever pageIndex, sortBy or search changes
   }, [pageIndex, sortBy, search]);
 
   if (loading) return <div>Loading...</div>;
@@ -98,7 +101,7 @@ const CustomerTable = () => {
     <>
       <input
         value={globalFilter || ''}
-        onChange={(e) => setGlobalFilter(e.target.value || undefined)}
+        onChange={(e) => setGlobalFilter(e.target.value || '')}
         placeholder="Search..."
       />
      
